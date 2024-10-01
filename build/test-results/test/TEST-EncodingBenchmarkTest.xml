@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="EncodingBenchmarkTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2024-09-24T09:38:51" hostname="gim-eunchan-ui-MacBookPro.local" time="6.453">
+  <properties/>
+  <testcase name="Base62와 Base64 인코딩 성능 및 결과 길이 비교" classname="EncodingBenchmarkTest" time="6.453"/>
+  <system-out><![CDATA[입력 크기: 10 바이트
+Base62: 22ms, 길이: 14
+Base64: 11ms, 길이: 16
+---
+입력 크기: 100 바이트
+Base62: 73ms, 길이: 135
+Base64: 2ms, 길이: 136
+---
+입력 크기: 1000 바이트
+Base62: 3087ms, 길이: 1344
+Base64: 4ms, 길이: 1336
+---
+입력 크기: 10000 바이트
+Base62: 3138ms, 길이: 13436
+Base64: 1ms, 길이: 13336
+---
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

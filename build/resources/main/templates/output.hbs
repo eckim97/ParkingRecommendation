@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>주차장 추천 결과</title>
+    <link rel="stylesheet" href="/css/lib/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: url('/images/parking.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px 20px; /* 상하 패딩 균형 조정 */
+        }
+        .container {
+            max-width: 700px;
+            width: 100%;
+            margin: 0 auto; /* 상하 마진 제거, 좌우 중앙 정렬 */
+        }
+        .result-header {
+            background-color: rgba(41, 128, 185, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .result-header h2 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        .result-body {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .parking-card {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .parking-card:hover {
+            transform: translateY(-5px);
+        }
+        .parking-card-header {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px 8px 0 0;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+        .parking-card-body {
+            padding: 15px;
+        }
+        .parking-info {
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+        .btn-view {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-size: 0.9rem;
+        }
+        .btn-view:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="result-header">
+        <h2><i class="fas fa-parking mr-2"></i> 주차장 추천 결과</h2>
+    </div>
+    <div class="result-body">
+        {{#each outputFormList}}
+            <div class="parking-card">
+                <div class="parking-card-header">
+                    <i class="fas fa-car mr-2"></i> {{parkingName}}
+                </div>
+                <div class="parking-card-body">
+                    <div class="parking-info">
+                        <p class="mb-1"><i class="fas fa-map-marker-alt mr-2"></i> {{parkingAddress}}</p>
+                        <p class="mb-2"><i class="fas fa-route mr-2"></i> 거리: <span class="distance" data-distance="{{distance}}"></span></p>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{directionUrl}}" class="btn btn-view" target="_blank">
+                            <i class="fas fa-directions mr-1"></i> 길안내
+                        </a>
+                        <a href="{{roadViewUrl}}" class="btn btn-view" target="_blank">
+                            <i class="fas fa-road mr-1"></i> 로드뷰
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {{/each}}
+    </div>
+</div>
+
+<script src="/js/lib/jquery.min.js"></script>
+<script src="/js/lib/bootstrap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.distance').forEach(function(el) {
+            const distance = parseFloat(el.dataset.distance);
+            if (distance < 1) {
+                el.textContent = (distance * 1000).toFixed(0) + ' m';
+            } else {
+                el.textContent = distance.toFixed(2) + ' km';
+            }
+        });
+    });
+</script>
+</body>
+</html>
