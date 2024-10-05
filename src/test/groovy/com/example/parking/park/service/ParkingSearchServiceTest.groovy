@@ -19,15 +19,15 @@ class ParkingSearchServiceTest extends Specification {
         parkingList = Lists.newArrayList(
                 parking.builder()
                         .id(1L)
-                        .parkingName("호수온누리약국")
-                        .latitude(37.60894036)
-                        .longitude(127.029052)
+                        .parkingName("세종로공영주차장")
+                        .latitude(37.5704)
+                        .longitude(126.9768)
                         .build(),
                 Parking.builder()
                         .id(2L)
-                        .parkingName("돌곶이온누리약국")
-                        .latitude(37.61040424)
-                        .longitude(127.0569046)
+                        .parkingName("경복궁 주차장")
+                        .latitude(37.5793)
+                        .longitude(126.9734)
                         .build()
         )
     }

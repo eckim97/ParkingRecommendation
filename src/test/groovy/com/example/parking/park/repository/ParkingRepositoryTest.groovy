@@ -18,9 +18,9 @@ class ParkingRepositoryTest extends AbstractIntegrationContainerBaseTest {
     def "ParkingRepository save"() {
         given:
         String address = "서울 특별시 성북구 종암동"
-        String name = "은혜 약국"
-        double latitude = 37.59
-        double longitude = 127.03
+        String name = "기린 민영 주차장"
+        double latitude = 37.57
+        double longitude = 126.98
 
         def parking = Parking.builder()
                 .parkingAddress(address)
@@ -42,9 +42,9 @@ class ParkingRepositoryTest extends AbstractIntegrationContainerBaseTest {
     def "ParkingRepository saveAll"() {
         given:
         String address = "서울 특별시 성북구 종암동"
-        String name = "은혜 약국"
-        double latitude = 37.59
-        double longitude = 127.03
+        String name = "기린 민영 주차장"
+        double latitude = 37.57
+        double longitude = 126.98
 
         def parking = Parking.builder()
                 .parkingAddress(address)
@@ -65,7 +65,7 @@ class ParkingRepositoryTest extends AbstractIntegrationContainerBaseTest {
         given:
         LocalDateTime now = LocalDateTime.now()
         String address = "서울 특별시 성북구 종암동"
-        String name = "은혜 약국"
+        String name = "기린 민영 주차장"
 
         def pharmcy = Parking.builder()
                 .parkingAddress(address)

@@ -22,7 +22,7 @@ class ParkingRepositoryServiceTest extends AbstractIntegrationContainerBaseTest 
         given:
         String inputAddress = "서울 특별시 성북구 종암동"
         String modifiedAddress = "서울 광진구 구의동"
-        String name = "은혜 약국"
+        String name = "기린 민영 주차장"
 
         def parking = parking.builder()
                 .parkingAddress(inputAddress)
@@ -43,7 +43,7 @@ class ParkingRepositoryServiceTest extends AbstractIntegrationContainerBaseTest 
         given:
         String inputAddress = "서울 특별시 성북구 종암동"
         String modifiedAddress = "서울 광진구 구의동"
-        String name = "은혜 약국"
+        String name = "기린 민영 주차장"
 
         def parking = Parking.builder()
                 .parkingAddress(inputAddress)
@@ -64,9 +64,9 @@ class ParkingRepositoryServiceTest extends AbstractIntegrationContainerBaseTest 
 
         given:
         String address = "서울 특별시 성북구 종암동"
-        String name = "은혜 약국"
-        double latitude = 36.11
-        double longitude = 128.11
+        String name = "기린 민영 주차장"
+        double latitude = 37.57
+        double longitude = 126.98
 
         def parking = parking.builder()
                 .parkingAddress(address)
@@ -89,9 +89,9 @@ class ParkingRepositoryServiceTest extends AbstractIntegrationContainerBaseTest 
         given:
         String inputAddress = "서울 특별시 성북구"
         String modifiedAddress = "서울 특별시 광진구"
-        String name = "은혜 약국"
-        double latitude = 36.11
-        double longitude = 128.11
+        String name = "기린 민영 주차장"
+        double latitude = 37.57
+        double longitude = 126.98
 
         def input = parking.builder()
                 .parkingAddress(inputAddress)
