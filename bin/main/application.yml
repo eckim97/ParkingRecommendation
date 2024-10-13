@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: local # default profile
+    active: local
     group:
       local:
         - common
@@ -37,7 +37,7 @@ spring:
     show-sql: true
 
   kafka:
-    bootstrap-servers: 52.79.207.254:9092,3.34.143.67:9092,3.38.212.167:9092
+    bootstrap-servers: localhost:9092
     consumer:
       group-id: parking-group
       auto-offset-reset: earliest
@@ -46,17 +46,32 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+    properties:
+      request.timeout.ms: 60000
+      max.block.ms: 60000
+      retry.backoff.ms: 1000
+      retries: 3
 
   web:
     resources:
       static-locations: classpath:/static/
+
+#server:
+#  port: 8081
 
 parking:
   recommendation:
     base:
       url: http://localhost:8080/dir/
   csv:
-    filepath: /path/to/your/parking.csv
+    filepath: ${user.dir}/database/init/parking.csv
+
+logging:
+  level:
+    root: INFO
+    com.example.parking: DEBUG
+    org.springframework.data.redis: DEBUG
+
 ---
 spring:
   config:
@@ -72,7 +87,7 @@ spring:
     port: 6379
   jpa:
     hibernate:
-      ddl-auto: validate # prod 배포시 validate
+      ddl-auto: validate
     show-sql: true
   kafka:
     bootstrap-servers: 52.79.207.254:9092,3.34.143.67:9092,3.38.212.167:9092
@@ -84,9 +99,10 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
 parking:
   recommendation:
     base:
       url: http://3.38.83.24/dir/
   csv:
-    filepath: /path/to/your/parking.csv
+    filepath: ${user.dir}/database/init/parking.csv
