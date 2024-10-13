@@ -1,72 +1,27 @@
 package com.example.parking.kafka.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.example.parking.direction.entity.Direction;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ParkingProducer {
 
-    private static final Logger log = LoggerFactory.getLogger(ParkingProducer.class);
     private final KafkaTemplate<String, String> kafkaTemplate;
-    private final StringRedisTemplate redisTemplate;
+    private final ObjectMapper objectMapper;
 
-    @Value("${parking.csv.filepath}")
-    private String csvFilePath;
-
-    public ParkingProducer(KafkaTemplate<String, String> kafkaTemplate, StringRedisTemplate redisTemplate) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.redisTemplate = redisTemplate;
-    }
-
-    public void sendMessage(String message) {
-        kafkaTemplate.send("Parking-data", message)
-                .addCallback(
-                        result -> log.info("Message sent successfully: {}", message),
-                        ex -> log.error("Failed to send message: {}", message, ex)
-                );
-    }
-
-    public int sendParkingDataFromCsv() {
-        int count = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                sendMessage(line);
-                count++;
-                if (count % 100 == 0) {
-                    log.info("Sent {} messages to Kafka", count);
-                }
-            }
-            log.info("Total {} messages sent to Kafka", count);
-        } catch (IOException e) {
-            log.error("Error reading CSV file: {}", e.getMessage());
+    public void sendParkingData(Direction direction) {
+        try {
+            String parkingData = objectMapper.writeValueAsString(direction);
+            kafkaTemplate.send("parking-topic", parkingData);
+            log.info("Parking data sent to Kafka: {}", parkingData);
+        } catch (Exception e) {
+            log.error("Error sending parking data to Kafka", e);
         }
-        return count;
-    }
-
-    public int sendParkingDataToRedis() {
-        int count = 0;
-        try (BufferedReader br = new BufferedReader(new FileReader(csvFilePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                redisTemplate.opsForValue().set("Parking:" + count, line);
-                count++;
-                if (count % 100 == 0) {
-                    log.info("Sent {} messages to Redis", count);
-                }
-            }
-            log.info("Total {} messages sent to Redis", count);
-        } catch (IOException e) {
-            log.error("Error reading CSV file: {}", e.getMessage());
-        }
-        return count;
     }
 }

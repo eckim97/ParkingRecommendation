@@ -7,6 +7,7 @@ import com.example.parking.direction.entity.Direction;
 import com.example.parking.direction.service.Base62Service;
 import com.example.parking.direction.service.DirectionService;
 import com.example.parking.dto.OutputDto;
+import com.example.parking.kafka.service.ParkingProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,6 +27,7 @@ public class ParkingRecommendationService {
     private final KakaoAddressSearchService kakaoAddressSearchService;
     private final DirectionService directionService;
     private final Base62Service base62Service;
+    private final ParkingProducer parkingProducer;
 
     private static final String ROAD_VIEW_BASE_URL = "https://map.kakao.com/link/roadview/";
 
@@ -33,7 +35,6 @@ public class ParkingRecommendationService {
     private String baseUrl;
 
     public List<OutputDto> recommendParkingList(String address) {
-
         KakaoApiResponseDto kakaoApiResponseDto = kakaoAddressSearchService.requestAddressSearch(address);
 
         if (Objects.isNull(kakaoApiResponseDto) || CollectionUtils.isEmpty(kakaoApiResponseDto.getDocumentList())) {
@@ -42,17 +43,12 @@ public class ParkingRecommendationService {
         }
 
         DocumentDto documentDto = kakaoApiResponseDto.getDocumentList().get(0);
-        // 공공기관 주차장 데이터
-//        List<Direction> directionList = directionService.buildDriectionList(documentDto);
-
-        // kakao api
         List<Direction> directionList = directionService.buildDirectionListByCategoryApi(documentDto);
 
-        // 방향 리스트를 DB에 저장
-        List<Direction> savedDirections = directionService.saveAll(directionList);
-        log.info("Saved Directions: {}", savedDirections);
+        // Kafka를 통해 데이터 전송
+        directionList.forEach(parkingProducer::sendParkingData);
 
-        return savedDirections.stream()
+        return directionList.stream()
                 .map(this::convertToOutputDto)
                 .collect(Collectors.toList());
     }
@@ -63,8 +59,7 @@ public class ParkingRecommendationService {
                 .parkingAddress(direction.getTargetAddress())
                 .directionUrl(baseUrl + base62Service.encodeDirectionId(direction.getId()))
                 .roadViewUrl(ROAD_VIEW_BASE_URL + direction.getTargetLatitude() + "," + direction.getTargetLongitude())
-                .distance(String.format("%.2f", direction.getDistance()))
+                .distance(String.format("%.2f km", direction.getDistance()))
                 .build();
     }
-
 }

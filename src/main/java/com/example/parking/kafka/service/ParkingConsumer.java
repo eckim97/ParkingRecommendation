@@ -1,44 +1,67 @@
 package com.example.parking.kafka.service;
 
+import com.example.parking.direction.entity.Direction;
+import com.example.parking.direction.repository.DirectionRepository;
+import com.example.parking.park.cache.ParkingRedisTemplateService;
+import com.example.parking.park.dto.ParkingDto;
 import com.example.parking.park.entity.Parking;
 import com.example.parking.park.repository.ParkingRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ParkingConsumer {
 
-    private static final Logger log = LoggerFactory.getLogger(ParkingConsumer.class);
+    private final DirectionRepository directionRepository;
     private final ParkingRepository parkingRepository;
+    private final ParkingRedisTemplateService parkingRedisTemplateService;
+    private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "parking-data", groupId = "parking-group")
-    public void consume(ConsumerRecord<String, String> record) {
+    @KafkaListener(topics = "parking-topic", groupId = "parking-group")
+    public void consume(String parkingData) {
         try {
-            log.info("Received message: key = {}, value = {}", record.key(), record.value());
-            String[] values = record.value().split(",(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)", -1);
+            Direction direction = objectMapper.readValue(parkingData, Direction.class);
 
-            if (values.length < 5) {
-                log.error("Invalid message format: {}", record.value());
-                return;
-            }
+            // DB에 저장 (Direction)
+            directionRepository.save(direction);
+            log.info("Direction data saved to DB: {}", direction.getTargetParkingName());
 
-            Parking parking = Parking.builder()
-                    .parkingName(values[1].replace("\"", "").trim())
-                    .parkingAddress(values[2].replace("\"", "").trim())
-                    .latitude(Double.parseDouble(values[3].trim()))
-                    .longitude(Double.parseDouble(values[4].trim()))
-                    .build();
-
+            // DB에 저장 (Parking)
+            Parking parking = convertToParking(direction);
             parkingRepository.save(parking);
-            log.info("Parking saved to database: {}", parking.getParkingName());
+            log.info("Parking data saved to DB: {}", parking.getParkingName());
+
+            // Redis에 저장
+            ParkingDto parkingDto = convertToParkingDto(direction);
+            parkingRedisTemplateService.save(parkingDto);
+            log.info("Parking data saved to Redis: {}", parkingDto.getParkingName());
 
         } catch (Exception e) {
-            log.error("Error processing message: {}", record.value(), e);
+            log.error("Error processing parking data", e);
         }
+    }
+
+    private Parking convertToParking(Direction direction) {
+        return Parking.builder()
+                .parkingName(direction.getTargetParkingName())
+                .parkingAddress(direction.getTargetAddress())
+                .latitude(direction.getTargetLatitude())
+                .longitude(direction.getTargetLongitude())
+                .build();
+    }
+
+    private ParkingDto convertToParkingDto(Direction direction) {
+        return ParkingDto.builder()
+                .id(direction.getId())
+                .parkingName(direction.getTargetParkingName())
+                .parkingAddress(direction.getTargetAddress())
+                .latitude(direction.getTargetLatitude())
+                .longitude(direction.getTargetLongitude())
+                .build();
     }
 }
